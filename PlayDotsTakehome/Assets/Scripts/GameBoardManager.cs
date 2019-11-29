@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class GameBoardManager : MonoBehaviour
 {
+    public static GameBoardManager GameBoardManagerInstance;
+
     public Transform GameBoardParent;
 
     public GameObject DotPrefab;
 
-    public GameObject[,] GameBoard = new GameObject[6, 6];
+    //public GameObject[,] GameBoard = new GameObject[6, 6];
 
     public Material Blue, Green, Purple, Red, Yellow;
+
+    private void Awake()
+    {
+        GameBoardManagerInstance = this;
+    }
 
     private void Start()
     {
@@ -78,6 +85,6 @@ public class GameBoardManager : MonoBehaviour
 
         dot.transform.SetParent(GameBoardParent);
 
-        StartCoroutine(dotScript.FallIntoPlace(dotScript.Coordinates.y));
+        StartCoroutine(dotScript.FallIntoPlace());
     }
 }

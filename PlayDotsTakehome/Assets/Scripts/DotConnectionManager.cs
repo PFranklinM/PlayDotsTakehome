@@ -111,12 +111,12 @@ public class DotConnectionManager : MonoBehaviour
 
         DotConnector.positionCount = 1;
 
-        DotFall();
+        DotRefill();
 
         lineActive = false;
     }
 
-    private void DotFall()
+    private void DotRefill()
     {
         if (ConnectedDots.Count < 2)
         {
@@ -124,52 +124,67 @@ public class DotConnectionManager : MonoBehaviour
         }
         else
         {
-            // Need to rework this.
 
-            foreach (Transform dot in ConnectedDots)
+            foreach (Transform clearedDots in ConnectedDots)
             {
-                dot.SetParent(DotScoredZone);
-                dot.position = DotScoredZone.position;
-
                 foreach (Transform remainingDots in DotGameBoard)
                 {
-                    if (remainingDots.GetComponent<IndividualDot>().Coordinates.x == dot.GetComponent<IndividualDot>().Coordinates.x &&
-                        remainingDots.GetComponent<IndividualDot>().Coordinates.y > dot.GetComponent<IndividualDot>().Coordinates.y)
+                    if (remainingDots.GetComponent<IndividualDot>().Coordinates.x == clearedDots.GetComponent<IndividualDot>().Coordinates.x &&
+                    remainingDots.GetComponent<IndividualDot>().Coordinates.y > clearedDots.GetComponent<IndividualDot>().Coordinates.y)
                     {
-                        remainingDots.GetComponent<IndividualDot>().Coordinates.y -= 1;
-
-                        Debug.Log("calling coroutine");
-                        StartCoroutine(remainingDots.GetComponent<IndividualDot>().FallIntoPlace(remainingDots.GetComponent<IndividualDot>().Coordinates.y));
+                        remainingDots.GetComponent<IndividualDot>().Coordinates.y--;
+                        StartCoroutine(remainingDots.GetComponent<IndividualDot>().FallIntoPlace());
                     }
                 }
-            }
 
-            ConnectedDots.Clear();
+                //clearedDots.SetParent(DotScoredZone);
+                //clearedDots.position = DotScoredZone.position;
+
+                clearedDots.gameObject.SetActive(false);
+            }
         }
     }
 
-    private IEnumerator ResetConnectedDots()
+    private IEnumerator RepopulateDots()
     {
-        ConnectedDots = ConnectedDots.OrderBy(x => x.GetComponent<IndividualDot>().Coordinates.x).ToList();
-
-        int numberOfColums = (int)ConnectedDots[0].GetComponent<IndividualDot>().Coordinates.x;
-
-        Debug.Log(numberOfColums);
-
-        yield return null;
-        /*
-        int numberOfColums = 0;
-
-        while (numberOfColums < 6)
+        foreach (Transform dot in ConnectedDots)
         {
-            foreach(Transform dot in ConnectedDots)
-            {
-                Vector3 SpawnPos = new Vector3(dot.GetComponent<IndividualDot>().Coordinates.x, 7, 0);
-                //GameObject IndividualDot = Instantiate(DotPrefab, SpawnPos, Quaternion.identity);
-                //AssignDots(IndividualDot, numberOfColums);
-            }
+            dot.position = new Vector3(dot.GetComponent<IndividualDot>().Coordinates.x, 6, 0);
+            dot.SetParent(DotGameBoard);
+        }
 
+        yield return new WaitForSeconds(2);
+
+        int startColumn = (int)ConnectedDots[0].GetComponent<IndividualDot>().Coordinates.x;
+        int endColumn = (int)ConnectedDots[ConnectedDots.Count - 1].GetComponent<IndividualDot>().Coordinates.x;
+
+        while (startColumn <= endColumn)
+        {
+            int amountToDrop = 0;
+
+            foreach (Transform clearedDots in ConnectedDots)
+            {
+                if (clearedDots.GetComponent<IndividualDot>().Coordinates.x == startColumn)
+                {
+                    amountToDrop++;
+                }
+
+                //StartCoroutine(clearedDots.GetComponent<IndividualDot>().FallIntoPlace(clearedDots.GetComponent<IndividualDot>().Coordinates.y - amountToDrop));
+            }
             yield return null;
-            */
+        }
+    }
+
+    private void ReassignDots()
+    {
+        foreach(Transform dot in DotGameBoard)
+        {
+            IndividualDot DotScript = dot.GetComponent<IndividualDot>();
+
+            if(DotScript.Coordinates != new Vector2(dot.transform.position.x, dot.transform.position.y))
+            {
+                DotScript.Coordinates = new Vector2(Mathf.RoundToInt(dot.transform.position.x), Mathf.RoundToInt(dot.transform.position.y));
+            }
+        }
     }
 }
