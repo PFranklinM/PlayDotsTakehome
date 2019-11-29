@@ -36,35 +36,6 @@ public class GameBoardManager : MonoBehaviour
 
             yield return null;
         }
-
-        /*
-        Vector3 Pos = new Vector3(IndividualDot.transform.position.x, 0, 0);
-
-            while (Vector3.Distance(IndividualDot.transform.position, Pos) > 0.1f)
-            {
-                IndividualDot.transform.position = Vector3.Lerp(IndividualDot.transform.position, Pos, 10f * Time.deltaTime);
-                yield return null;
-            }
-            */
-
-            /*
-            for (int j = 0; j < 6; j++)
-            {
-                //Vector3 SpawnPos = new Vector3(i, 7, 0);
-
-                //Vector3 Pos = new Vector3(i, j, 0);
-                //GameObject IndividualDot = Instantiate(DotPrefab, SpawnPos, Quaternion.identity);
-                //AssignDots(IndividualDot);
-
-                while(Vector3.Distance(IndividualDot.transform.position, Pos) > 0.1f)
-                {
-                    IndividualDot.transform.position = Vector3.Lerp(IndividualDot.transform.position, Pos, 10f * Time.deltaTime);
-                    yield return null;
-                }
-
-                //GameBoard[i, j] = IndividualDot;
-            }
-            */
     }
 
     private void AssignDots(GameObject dot, int finalYPos)
@@ -107,6 +78,6 @@ public class GameBoardManager : MonoBehaviour
 
         dot.transform.SetParent(GameBoardParent);
 
-        StartCoroutine(dotScript.FallIntoPlace(finalYPos));
+        StartCoroutine(dotScript.FallIntoPlace(dotScript.Coordinates.y));
     }
 }
