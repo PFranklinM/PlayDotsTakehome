@@ -45,7 +45,7 @@ public class GameBoardManager : MonoBehaviour
         }
     }
 
-    private void AssignDots(GameObject dot, int finalYPos)
+    public void AssignDots(GameObject dot, int finalYPos)
     {
         int randomColor = Random.Range(0, 5);
 
