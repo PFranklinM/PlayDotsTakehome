@@ -365,9 +365,6 @@ MonoBehaviour:
   DotConnector: {fileID: 17395899}
   DotScoreGraphic: {fileID: 1713043680}
   CurrentlySelectedDotColor: 0
-  DotGameBoard: {fileID: 1913015425}
-  DotScoredZone: {fileID: 1278466439}
-  ConnectedDots: []
 --- !u!1 &936944733
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,6 +695,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameBoardParent: {fileID: 1913015425}
+  DotScoredZone: {fileID: 1278466439}
+  ConnectedDots: []
   DotPrefab: {fileID: 3432212880511863271, guid: d5ab19477400eba43864784d14d3dd97,
     type: 3}
   Blue: {fileID: 2100000, guid: 61f81f9adbf79fa4497e3a307ee43d65, type: 2}

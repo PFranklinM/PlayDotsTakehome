@@ -6,11 +6,11 @@ public class GameBoardManager : MonoBehaviour
 {
     public static GameBoardManager GameBoardManagerInstance;
 
-    public Transform GameBoardParent;
+    public Transform GameBoardParent, DotScoredZone;
+
+    public List<Transform> ConnectedDots;
 
     public GameObject DotPrefab;
-
-    //public GameObject[,] GameBoard = new GameObject[6, 6];
 
     public Material Blue, Green, Purple, Red, Yellow;
 
@@ -41,6 +41,80 @@ public class GameBoardManager : MonoBehaviour
 
             numberOfRows++;
 
+            yield return null;
+        }
+    }
+
+    public IEnumerator DotRefill()
+    {
+        if (ConnectedDots.Count < 2)
+        {
+            ConnectedDots.Clear();
+        }
+        else
+        {
+            int clearedDotCounter = 0;
+
+            while (clearedDotCounter <= ConnectedDots.Count)
+            {
+                foreach (Transform clearedDots in ConnectedDots)
+                {
+                    clearedDots.SetParent(DotScoredZone);
+                    clearedDots.position = DotScoredZone.position;
+
+                    foreach (Transform remainingDots in GameBoardParent)
+                    {
+                        if (remainingDots.GetComponent<IndividualDot>().Coordinates.x == clearedDots.GetComponent<IndividualDot>().Coordinates.x &&
+                        remainingDots.GetComponent<IndividualDot>().Coordinates.y > clearedDots.GetComponent<IndividualDot>().Coordinates.y)
+                        {
+                            remainingDots.GetComponent<IndividualDot>().Coordinates.y--;
+
+                            clearedDots.GetComponent<IndividualDot>().Coordinates.y++;
+                        }
+                    }
+                }
+
+                clearedDotCounter++;
+
+                yield return null;
+            }
+
+            foreach (Transform remainingDots in GameBoardParent)
+            {
+                StartCoroutine(remainingDots.GetComponent<IndividualDot>().FallIntoPlace());
+            }
+
+            RepopulateDots();
+        }
+    }
+
+    private void RepopulateDots()
+    {
+        foreach (Transform clearedDots in ConnectedDots)
+        {
+            clearedDots.SetParent(GameBoardParent);
+            clearedDots.position = new Vector3(clearedDots.GetComponent<IndividualDot>().Coordinates.x, 7, 0);
+
+            GameBoardManager.GameBoardManagerInstance.AssignDots(clearedDots.gameObject, (int)clearedDots.GetComponent<IndividualDot>().Coordinates.y);
+        }
+
+        ConnectedDots.Clear();
+
+        StartCoroutine(ReorganizeHierarchy());
+    }
+
+    private IEnumerator ReorganizeHierarchy()
+    {
+        int childTracker = 0;
+
+        while (childTracker < GameBoardParent.childCount)
+        {
+            foreach (Transform dot in GameBoardParent)
+            {
+                dot.SetSiblingIndex((int)dot.position.x + ((int)dot.position.y * 6));
+            }
+
+            childTracker++;
             yield return null;
         }
     }
