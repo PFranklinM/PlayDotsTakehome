@@ -9,11 +9,14 @@ public class IndividualDot : MonoBehaviour
 
     public Vector2 Coordinates;
 
+    [SerializeField]
+    private float dotFallSpeed;
+
     public IEnumerator FallIntoPlace()
     {
         while(Vector3.Distance(this.transform.position, Coordinates) > 0.1f)
         {
-            transform.position = Vector3.Lerp(transform.position, Coordinates, 20f * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, Coordinates, dotFallSpeed * Time.deltaTime);
 
             yield return null;
         }
@@ -30,6 +33,6 @@ public class IndividualDot : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        DotConnectionManager.DotConnectionManagerInstance.AnotherDotEntered(this);
+        DotConnectionManager.DotConnectionManagerInstance.AnotherDotEntered(transform);
     }
 }

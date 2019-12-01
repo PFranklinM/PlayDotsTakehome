@@ -14,6 +14,12 @@ public class GameBoardManager : MonoBehaviour
 
     public Material Blue, Green, Purple, Red, Yellow;
 
+    private bool shouldIgnoreColor;
+    private int colorToIgnore;
+
+    [SerializeField]
+    private int rows, columns;
+
     private void Awake()
     {
         GameBoardManagerInstance = this;
@@ -28,16 +34,14 @@ public class GameBoardManager : MonoBehaviour
     {
         int numberOfRows = 0;
 
-        while (numberOfRows < 6)
+        while (numberOfRows < rows)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < columns; i++)
             {
-                Vector3 SpawnPos = new Vector3(i, 7, 0);
+                Vector3 SpawnPos = new Vector3(i, rows + 1, 0);
                 GameObject IndividualDot = Instantiate(DotPrefab, SpawnPos, Quaternion.identity);
                 AssignDots(IndividualDot, numberOfRows);
             }
-
-            yield return new WaitForSeconds(0.1f);
 
             numberOfRows++;
 
@@ -45,7 +49,7 @@ public class GameBoardManager : MonoBehaviour
         }
     }
 
-    public IEnumerator DotRefill()
+    public IEnumerator DotsScored()
     {
         if (ConnectedDots.Count < 2)
         {
@@ -95,7 +99,7 @@ public class GameBoardManager : MonoBehaviour
             clearedDots.SetParent(GameBoardParent);
             clearedDots.position = new Vector3(clearedDots.GetComponent<IndividualDot>().Coordinates.x, 7, 0);
 
-            GameBoardManager.GameBoardManagerInstance.AssignDots(clearedDots.gameObject, (int)clearedDots.GetComponent<IndividualDot>().Coordinates.y);
+            AssignDots(clearedDots.gameObject, (int)clearedDots.GetComponent<IndividualDot>().Coordinates.y);
         }
 
         ConnectedDots.Clear();
@@ -117,11 +121,38 @@ public class GameBoardManager : MonoBehaviour
             childTracker++;
             yield return null;
         }
+
+        // Finally we check to see if a certain color of dot is being excluded from making a square. If so, set color exclusion to false.
+        if (shouldIgnoreColor)
+        {
+            shouldIgnoreColor = false;
+        }
+    }
+
+    private int RandomColor(int minimum, int maximum, int exception)
+    {
+        int randomColor = Random.Range(0, 5);
+
+        if(randomColor == exception)
+        {
+            randomColor = (randomColor + 1) % maximum;
+        }
+
+        return randomColor;
     }
 
     public void AssignDots(GameObject dot, int finalYPos)
     {
-        int randomColor = Random.Range(0, 5);
+        int randomColor = 0;
+
+        if (shouldIgnoreColor)
+        {
+            randomColor = RandomColor(0, 5, colorToIgnore);
+        }
+        else
+        {
+            randomColor = Random.Range(0, 5);
+        }
 
         IndividualDot dotScript = dot.GetComponent<IndividualDot>();
         Renderer dotRenderer = dot.GetComponent<Renderer>();
@@ -160,5 +191,11 @@ public class GameBoardManager : MonoBehaviour
         dot.transform.SetParent(GameBoardParent);
 
         StartCoroutine(dotScript.FallIntoPlace());
+    }
+
+    public void DotReassignmentAvoidColor(int color)
+    {
+        shouldIgnoreColor = true;
+        colorToIgnore = color;
     }
 }

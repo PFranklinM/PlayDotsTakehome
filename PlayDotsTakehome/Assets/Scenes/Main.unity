@@ -364,6 +364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DotConnector: {fileID: 17395899}
   DotScoreGraphic: {fileID: 1713043680}
+  dotScoreGraphicGrowAmount: 1.75
   CurrentlySelectedDotColor: 0
 --- !u!1 &936944733
 GameObject:
@@ -704,6 +705,8 @@ MonoBehaviour:
   Purple: {fileID: 2100000, guid: f7b15fcf52b71d9448b1be67ea569b2a, type: 2}
   Red: {fileID: 2100000, guid: 7676e31076d890445bf0546bbdd2fa7a, type: 2}
   Yellow: {fileID: 2100000, guid: dd725859a78446b4980059769c668651, type: 2}
+  rows: 6
+  columns: 6
 --- !u!1 &1646528139
 GameObject:
   m_ObjectHideFlags: 0

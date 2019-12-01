@@ -96,6 +96,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ThisDotsColor: 0
   Coordinates: {x: 0, y: 0}
+  dotFallSpeed: 20
 --- !u!58 &-2268302799683014763
 CircleCollider2D:
   m_ObjectHideFlags: 0

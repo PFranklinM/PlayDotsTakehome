@@ -9,6 +9,8 @@ public class DotConnectionManager : MonoBehaviour
 
     public LineRenderer DotConnector, DotScoreGraphic;
 
+    [SerializeField]
+    private float dotScoreGraphicGrowAmount;
     private float dotScoreGraphicXPos;
 
     public enum SelectedDotColor { None, Blue, Green, Purple, Red, Yellow };
@@ -16,9 +18,7 @@ public class DotConnectionManager : MonoBehaviour
 
     private bool lineActive = false;
 
-    private IndividualDot StartingDot;
-    private IndividualDot PreviousDot;
-    private IndividualDot TouchedDot;
+    private Transform StartingDot, PreviousDot, TouchedDot;
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class DotConnectionManager : MonoBehaviour
 
     public void StartLine(Transform ClickedDot)
     {
-        StartingDot = ClickedDot.GetComponent<IndividualDot>();
+        StartingDot = ClickedDot;
         PreviousDot = StartingDot;
 
         GameBoardManager.GameBoardManagerInstance.ConnectedDots.Add(ClickedDot);
@@ -52,66 +52,91 @@ public class DotConnectionManager : MonoBehaviour
         StartCoroutine(MouseDragLineRenderer());
     }
 
-    public void AnotherDotEntered(IndividualDot dot)
+    public void AnotherDotEntered(Transform EnteredDot)
     {
         if (lineActive)
         {
-            if (Mathf.Abs(PreviousDot.Coordinates.x - dot.Coordinates.x) == 1 && Mathf.Abs(PreviousDot.Coordinates.y - dot.Coordinates.y) == 0 ||
-                       Mathf.Abs(PreviousDot.Coordinates.x - dot.Coordinates.x) == 0 && Mathf.Abs(PreviousDot.Coordinates.y - dot.Coordinates.y) == 1)
+            IndividualDot PreviousDotScript = PreviousDot.GetComponent<IndividualDot>();
+            IndividualDot EnteredDotScript = EnteredDot.GetComponent<IndividualDot>();
+
+            if (Mathf.Abs(PreviousDotScript.Coordinates.x - EnteredDotScript.Coordinates.x) == 1 && Mathf.Abs(PreviousDotScript.Coordinates.y - EnteredDotScript.Coordinates.y) == 0 ||
+                       Mathf.Abs(PreviousDotScript.Coordinates.x - EnteredDotScript.Coordinates.x) == 0 && Mathf.Abs(PreviousDotScript.Coordinates.y - EnteredDotScript.Coordinates.y) == 1)
             {
-                if ((int)dot.ThisDotsColor == (int)PreviousDot.ThisDotsColor)
+                if ((int)EnteredDotScript.ThisDotsColor == (int)PreviousDotScript.ThisDotsColor)
                 {
-                    NewDotActions(dot.transform);
+                    NewDotActions(EnteredDot);
                 }
             }
         }
     }
 
-    private void NewDotActions(Transform dot)
+    private void NewDotActions(Transform Dot)
     {
-        if (GameBoardManager.GameBoardManagerInstance.ConnectedDots.Contains(dot.transform))
+        if(Dot == StartingDot && GameBoardManager.GameBoardManagerInstance.ConnectedDots.Count > 2)
         {
-            DotDisconnected(dot);
+            MadeASquare();
+        }
+        else if (GameBoardManager.GameBoardManagerInstance.ConnectedDots.Contains(Dot))
+        {
+            DotDisconnected(Dot);
         }
         else
         {
-            DotConnected(dot);
+            DotConnected(Dot);
         }
     }
 
-    private void DotConnected(Transform NewDot)
+    private void MadeASquare()
     {
-        PreviousDot = NewDot.GetComponent<IndividualDot>();
+        foreach(Transform Dot in GameBoardManager.GameBoardManagerInstance.GameBoardParent)
+        {
+            if ((int)Dot.GetComponent<IndividualDot>().ThisDotsColor == (int)CurrentlySelectedDotColor)
+            {
+                GameBoardManager.GameBoardManagerInstance.ConnectedDots.Add(Dot);
+            }
+        }
 
-        GameBoardManager.GameBoardManagerInstance.ConnectedDots.Add(NewDot);
+        // Since there is a none color option, we want to subtract 1 from the enum int to account for only colors.
+        GameBoardManager.GameBoardManagerInstance.DotReassignmentAvoidColor((int)CurrentlySelectedDotColor - 1);
 
-        Vector3 Pos = new Vector3(NewDot.position.x,
-            NewDot.position.y,
+        DotConnector.positionCount = 1;
+        StartCoroutine(GameBoardManager.GameBoardManagerInstance.DotsScored());
+        lineActive = false;
+    }
+
+    private void DotConnected(Transform Dot)
+    {
+        PreviousDot = Dot;
+
+        GameBoardManager.GameBoardManagerInstance.ConnectedDots.Add(Dot);
+
+        Vector3 Pos = new Vector3(Dot.position.x,
+            Dot.position.y,
             -1);
 
         DotConnector.SetPosition(DotConnector.positionCount - 1, Pos);
 
         DotConnector.positionCount++;
 
-        dotScoreGraphicXPos *= 2f;
+        dotScoreGraphicXPos *= dotScoreGraphicGrowAmount;
 
         DotScoreGraphic.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
         DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
     }
 
-    private void DotDisconnected(Transform NewDot)
+    private void DotDisconnected(Transform Dot)
     {
-        PreviousDot = NewDot.GetComponent<IndividualDot>();
+        PreviousDot = Dot;
 
-        Vector3 Pos = new Vector3(NewDot.position.x,
-            NewDot.position.y,
+        Vector3 Pos = new Vector3(Dot.position.x,
+            Dot.position.y,
             -1);
 
         DotConnector.SetPosition(DotConnector.positionCount - 1, Pos);
 
         DotConnector.positionCount--;
 
-        dotScoreGraphicXPos /= 2f;
+        dotScoreGraphicXPos /= dotScoreGraphicGrowAmount;
 
         DotScoreGraphic.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
         DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
@@ -141,7 +166,7 @@ public class DotConnectionManager : MonoBehaviour
 
         DotConnector.positionCount = 1;
 
-        StartCoroutine(GameBoardManager.GameBoardManagerInstance.DotRefill());
+        StartCoroutine(GameBoardManager.GameBoardManagerInstance.DotsScored());
 
         lineActive = false;
     }
