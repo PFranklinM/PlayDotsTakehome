@@ -368,6 +368,7 @@ MonoBehaviour:
   DotScoreGraphicLeft: {fileID: 1568742604}
   DotScoreGraphicRight: {fileID: 1729059351}
   dotScoreGraphicGrowAmount: 1.75
+  dotScoreGraphicStartingValue: 0.1
   CurrentlySelectedDotColor: 0
 --- !u!1 &936944733
 GameObject:
