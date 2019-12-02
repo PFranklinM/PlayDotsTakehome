@@ -38,9 +38,9 @@ public class GameBoardManager : MonoBehaviour
         {
             for (int i = 0; i < columns; i++)
             {
-                Vector3 SpawnPos = new Vector3(i, rows + 1, 0);
+                Vector3 SpawnPos = new Vector3(i, rows * 2, 0);
                 GameObject IndividualDot = Instantiate(DotPrefab, SpawnPos, Quaternion.identity);
-                AssignDots(IndividualDot, numberOfRows);
+                AssignDots(IndividualDot.transform, numberOfRows);
             }
 
             numberOfRows++;
@@ -61,19 +61,19 @@ public class GameBoardManager : MonoBehaviour
 
             while (clearedDotCounter <= ConnectedDots.Count)
             {
-                foreach (Transform clearedDots in ConnectedDots)
+                foreach (Transform ClearedDots in ConnectedDots)
                 {
-                    clearedDots.SetParent(DotScoredZone);
-                    clearedDots.position = DotScoredZone.position;
+                    ClearedDots.SetParent(DotScoredZone);
+                    ClearedDots.position = DotScoredZone.position;
 
-                    foreach (Transform remainingDots in GameBoardParent)
+                    foreach (Transform RemainingDots in GameBoardParent)
                     {
-                        if (remainingDots.GetComponent<IndividualDot>().Coordinates.x == clearedDots.GetComponent<IndividualDot>().Coordinates.x &&
-                        remainingDots.GetComponent<IndividualDot>().Coordinates.y > clearedDots.GetComponent<IndividualDot>().Coordinates.y)
+                        if (RemainingDots.GetComponent<IndividualDot>().Coordinates.x == ClearedDots.GetComponent<IndividualDot>().Coordinates.x &&
+                        RemainingDots.GetComponent<IndividualDot>().Coordinates.y > ClearedDots.GetComponent<IndividualDot>().Coordinates.y)
                         {
-                            remainingDots.GetComponent<IndividualDot>().Coordinates.y--;
+                            RemainingDots.GetComponent<IndividualDot>().Coordinates.y--;
 
-                            clearedDots.GetComponent<IndividualDot>().Coordinates.y++;
+                            ClearedDots.GetComponent<IndividualDot>().Coordinates.y++;
                         }
                     }
                 }
@@ -83,9 +83,14 @@ public class GameBoardManager : MonoBehaviour
                 yield return null;
             }
 
-            foreach (Transform remainingDots in GameBoardParent)
+            foreach (Transform RemainingDots in GameBoardParent)
             {
-                StartCoroutine(remainingDots.GetComponent<IndividualDot>().FallIntoPlace());
+                if (RemainingDots.transform.position != new Vector3(RemainingDots.GetComponent<IndividualDot>().Coordinates.x,
+                    RemainingDots.GetComponent<IndividualDot>().Coordinates.y,
+                    0))
+                {
+                    StartCoroutine(RemainingDots.GetComponent<IndividualDot>().FallIntoPlace());
+                }
             }
 
             RepopulateDots();
@@ -94,12 +99,12 @@ public class GameBoardManager : MonoBehaviour
 
     private void RepopulateDots()
     {
-        foreach (Transform clearedDots in ConnectedDots)
+        foreach (Transform ClearedDots in ConnectedDots)
         {
-            clearedDots.SetParent(GameBoardParent);
-            clearedDots.position = new Vector3(clearedDots.GetComponent<IndividualDot>().Coordinates.x, 7, 0);
+            ClearedDots.SetParent(GameBoardParent);
+            ClearedDots.position = new Vector3(ClearedDots.GetComponent<IndividualDot>().Coordinates.x, 7, 0);
 
-            AssignDots(clearedDots.gameObject, (int)clearedDots.GetComponent<IndividualDot>().Coordinates.y);
+            AssignDots(ClearedDots, (int)ClearedDots.GetComponent<IndividualDot>().Coordinates.y);
         }
 
         ConnectedDots.Clear();
@@ -141,7 +146,7 @@ public class GameBoardManager : MonoBehaviour
         return randomColor;
     }
 
-    public void AssignDots(GameObject dot, int finalYPos)
+    public void AssignDots(Transform Dot, int finalYPos)
     {
         int randomColor = 0;
 
@@ -154,43 +159,43 @@ public class GameBoardManager : MonoBehaviour
             randomColor = Random.Range(0, 5);
         }
 
-        IndividualDot dotScript = dot.GetComponent<IndividualDot>();
-        Renderer dotRenderer = dot.GetComponent<Renderer>();
+        IndividualDot DotScript = Dot.GetComponent<IndividualDot>();
+        Renderer DotRenderer = Dot.GetComponent<Renderer>();
 
         switch (randomColor)
         {
             case 0:
-                dotScript.ThisDotsColor = IndividualDot.Color.Blue;
-                dotRenderer.material = Blue;
+                DotScript.ThisDotsColor = IndividualDot.Color.Blue;
+                DotRenderer.material = Blue;
                 break;
 
             case 1:
-                dotScript.ThisDotsColor = IndividualDot.Color.Green;
-                dotRenderer.material = Green;
+                DotScript.ThisDotsColor = IndividualDot.Color.Green;
+                DotRenderer.material = Green;
                 break;
 
             case 2:
-                dotScript.ThisDotsColor = IndividualDot.Color.Purple;
-                dotRenderer.material = Purple;
+                DotScript.ThisDotsColor = IndividualDot.Color.Purple;
+                DotRenderer.material = Purple;
                 break;
 
             case 3:
-                dotScript.ThisDotsColor = IndividualDot.Color.Red;
-                dotRenderer.material = Red;
+                DotScript.ThisDotsColor = IndividualDot.Color.Red;
+                DotRenderer.material = Red;
                 break;
 
             case 4:
-                dotScript.ThisDotsColor = IndividualDot.Color.Yellow;
-                dotRenderer.material = Yellow;
+                DotScript.ThisDotsColor = IndividualDot.Color.Yellow;
+                DotRenderer.material = Yellow;
                 break;
         }
 
-        dotScript.Coordinates.x = dot.transform.position.x;
-        dotScript.Coordinates.y = finalYPos;
+        DotScript.Coordinates.x = Dot.transform.position.x;
+        DotScript.Coordinates.y = finalYPos;
 
-        dot.transform.SetParent(GameBoardParent);
+        Dot.transform.SetParent(GameBoardParent);
 
-        StartCoroutine(dotScript.FallIntoPlace());
+        StartCoroutine(DotScript.FallIntoPlace());
     }
 
     public void DotReassignmentAvoidColor(int color)

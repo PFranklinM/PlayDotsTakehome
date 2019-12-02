@@ -14,12 +14,16 @@ public class IndividualDot : MonoBehaviour
 
     public IEnumerator FallIntoPlace()
     {
-        while(Vector3.Distance(this.transform.position, Coordinates) > 0.1f)
+        Vector3 DropDotPos = new Vector3(Coordinates.x, Coordinates.y - 0.5f, 0);
+
+        while(Vector3.Distance(transform.position, DropDotPos) > 0.1f)
         {
-            transform.position = Vector3.Lerp(transform.position, Coordinates, dotFallSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, DropDotPos, dotFallSpeed * Time.deltaTime);
 
             yield return null;
         }
+
+        yield return new WaitForSeconds(0.05f);
 
         transform.position = Coordinates;
     }

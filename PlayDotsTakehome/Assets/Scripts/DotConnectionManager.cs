@@ -7,7 +7,7 @@ public class DotConnectionManager : MonoBehaviour
 {
     public static DotConnectionManager DotConnectionManagerInstance;
 
-    public LineRenderer DotConnector, DotScoreGraphic;
+    public LineRenderer DotConnector, DotScoreGraphicTop, DotScoreGraphicBot, DotScoreGraphicLeft, DotScoreGraphicRight;
 
     [SerializeField]
     private float dotScoreGraphicGrowAmount;
@@ -44,10 +44,13 @@ public class DotConnectionManager : MonoBehaviour
 
         dotScoreGraphicXPos = 0.1f;
 
-        DotScoreGraphic.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
-        DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
 
-        DotScoreGraphic.material = ClickedDot.GetComponent<Renderer>().material;
+        DotScoreGraphicTop.material = ClickedDot.GetComponent<Renderer>().material;
+        DotScoreGraphicBot.material = ClickedDot.GetComponent<Renderer>().material;
 
         StartCoroutine(MouseDragLineRenderer());
     }
@@ -99,9 +102,18 @@ public class DotConnectionManager : MonoBehaviour
         // Since there is a none color option, we want to subtract 1 from the enum int to account for only colors.
         GameBoardManager.GameBoardManagerInstance.DotReassignmentAvoidColor((int)CurrentlySelectedDotColor - 1);
 
-        DotConnector.positionCount = 1;
-        StartCoroutine(GameBoardManager.GameBoardManagerInstance.DotsScored());
-        lineActive = false;
+
+        DotScoreGraphicTop.SetPosition(0, new Vector3(-4.5f, 0, 0));
+        DotScoreGraphicTop.SetPosition(1, new Vector3(4.5f, 0, 0));
+
+        DotScoreGraphicBot.SetPosition(0, new Vector3(-4.5f, 0, 0));
+        DotScoreGraphicBot.SetPosition(1, new Vector3(4.5f, 0, 0));
+
+        DotScoreGraphicLeft.gameObject.SetActive(true);
+        DotScoreGraphicLeft.material = StartingDot.GetComponent<Renderer>().material;
+
+        DotScoreGraphicRight.gameObject.SetActive(true);
+        DotScoreGraphicRight.material = StartingDot.GetComponent<Renderer>().material;
     }
 
     private void DotConnected(Transform Dot)
@@ -120,8 +132,10 @@ public class DotConnectionManager : MonoBehaviour
 
         dotScoreGraphicXPos *= dotScoreGraphicGrowAmount;
 
-        DotScoreGraphic.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
-        DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
     }
 
     private void DotDisconnected(Transform Dot)
@@ -138,8 +152,10 @@ public class DotConnectionManager : MonoBehaviour
 
         dotScoreGraphicXPos /= dotScoreGraphicGrowAmount;
 
-        DotScoreGraphic.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
-        DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(0, new Vector3(-dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
 
         GameBoardManager.GameBoardManagerInstance.ConnectedDots.RemoveAt(GameBoardManager.GameBoardManagerInstance.ConnectedDots.Count - 1);
     }
@@ -161,10 +177,15 @@ public class DotConnectionManager : MonoBehaviour
 
         dotScoreGraphicXPos = 0.0f;
 
-        DotScoreGraphic.SetPosition(0, new Vector3(dotScoreGraphicXPos, 0, 0));
-        DotScoreGraphic.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(0, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicTop.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(0, new Vector3(dotScoreGraphicXPos, 0, 0));
+        DotScoreGraphicBot.SetPosition(1, new Vector3(dotScoreGraphicXPos, 0, 0));
 
         DotConnector.positionCount = 1;
+
+        DotScoreGraphicLeft.gameObject.SetActive(false);
+        DotScoreGraphicRight.gameObject.SetActive(false);
 
         StartCoroutine(GameBoardManager.GameBoardManagerInstance.DotsScored());
 
